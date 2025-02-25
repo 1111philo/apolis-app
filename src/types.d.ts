@@ -140,6 +140,7 @@ interface GuestResponse {
   first_name: string;
   status: string;
   slotted_at: string;
+  has_notification?: boolean;
 }
 
 // END RESPONSE
