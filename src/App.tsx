@@ -56,7 +56,7 @@ export default function App() {
 
 function AppNav({ authUserIsAdmin, authUser }) {
   const { serviceTypes } = Route.useLoaderData();
-  const setAuthUser = useAuthStore((state) => state.setAuthUser);
+  const { setAuthUser } = useAuthStore.getState();
   const LOGO_SIZE = "50px";
   const navigate = useNavigate();
 
