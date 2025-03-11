@@ -17,7 +17,7 @@ const queryClient = new QueryClient();
 
 export default function App() {
   const { authUserIsAdmin, authUser } = Route.useLoaderData();
-  const setAuthUser = useAuthStore((state) => state.setAuthUser);
+  const { setAuthUser } = useAuthStore.getState();
 
   // Only runs once.
   useEffect(() => {
