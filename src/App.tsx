@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
@@ -11,12 +11,19 @@ import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 
 import * as auth from "./lib/api/auth";
 import { Route } from "./routes/_auth";
-import { capitalize, useAuthStore } from "./lib/utils";
+import { capitalize, useAuthStore, setAutoLogoutTimer } from "./lib/utils";
 
 const queryClient = new QueryClient();
 
 export default function App() {
   const { authUserIsAdmin, authUser } = Route.useLoaderData();
+  const setAuthUser = useAuthStore((state) => state.setAuthUser);
+
+  // Only runs once.
+  useEffect(() => {
+    setAutoLogoutTimer(setAuthUser);
+  }, []);
+
   return (
     <>
       <QueryClientProvider client={queryClient}>
@@ -28,22 +35,20 @@ export default function App() {
         </Container>
 
         {/* DEV */}
-        {import.meta.env.MODE === 'staging' ? (
+        {import.meta.env.MODE === "staging" ? (
           <>
-          <Suspense>
-            {/* for use with dynamically importing dev tools in dev mode, which is not yet set up */}
-            <TanStackRouterDevtools initialIsOpen={false} />
-            <ReactQueryDevtools initialIsOpen={false} />
-          </Suspense>
-          <div className="mt-5 text-danger float-end">
-            API URL: {import.meta.env.VITE_API_URL}
-             - MODE: {import.meta.env.MODE}
-          </div>
+            <Suspense>
+              {/* for use with dynamically importing dev tools in dev mode, which is not yet set up */}
+              <TanStackRouterDevtools initialIsOpen={false} />
+              <ReactQueryDevtools initialIsOpen={false} />
+            </Suspense>
+            <div className="mt-5 text-danger float-end">
+              API URL: {import.meta.env.VITE_API_URL}- MODE:{" "}
+              {import.meta.env.MODE}
+            </div>
           </>
-        ) : null
-        }
+        ) : null}
         {/* END DEV */}
-
       </QueryClientProvider>
     </>
   );
@@ -53,7 +58,8 @@ function AppNav({ authUserIsAdmin, authUser }) {
   const { serviceTypes } = Route.useLoaderData();
   const setAuthUser = useAuthStore((state) => state.setAuthUser);
   const LOGO_SIZE = "50px";
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
   return (
     <Navbar
       expand="md"
@@ -111,7 +117,7 @@ function AppNav({ authUserIsAdmin, authUser }) {
                 onClick={async () => {
                   await auth.logout();
                   setAuthUser(null);
-                  navigate({ to: "/" })
+                  navigate({ to: "/" });
                 }}
               >
                 <NavDropdown.Divider className="p-0 m-0" />
