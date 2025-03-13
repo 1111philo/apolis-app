@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
@@ -11,12 +11,19 @@ import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 
 import * as auth from "./lib/api/auth";
 import { Route } from "./routes/_auth";
-import { capitalize, useAuthStore } from "./lib/utils";
+import { capitalize, useAuthStore, setAutoLogoutTimer } from "./lib/utils";
 
 const queryClient = new QueryClient();
 
 export default function App() {
   const { authUserIsAdmin, authUser } = Route.useLoaderData();
+  const { setAuthUser } = useAuthStore.getState();
+
+  // Only runs once.
+  useEffect(() => {
+    setAutoLogoutTimer(setAuthUser);
+  }, []);
+
   return (
     <>
       <QueryClientProvider client={queryClient}>
@@ -52,6 +59,7 @@ function AppNav({ authUserIsAdmin, authUser }) {
   const { setAuthUser } = useAuthStore.getState();
   const LOGO_SIZE = "50px";
   const navigate = useNavigate();
+
   return (
     <Navbar
       expand="md"
