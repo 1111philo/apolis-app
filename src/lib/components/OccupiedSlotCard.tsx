@@ -1,52 +1,32 @@
-import { useState } from 'react';
-import { Link } from '@tanstack/react-router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { readableTime } from '../utils';
-import { updateGuestServiceStatus } from '../api';
-import {
-  Button,
-  Card,
-  Col,
-  Container,
-  Dropdown,
-  Row
-} from "react-bootstrap";
+import { useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { readableTime } from "../utils";
+import { Button, Card, Col, Container, Dropdown, Row } from "react-bootstrap";
 
 interface OccupiedSlotCardProps {
   guest: GuestResponse;
   slotNum: number;
+  moveToCompletedMutation: (guest: GuestResponse) => void;
+  moveToQueuedMutation: (guest: GuestResponse) => void;
 }
 
 export default function OccupiedSlotCard({
   guest,
-  slotNum
+  slotNum,
+  moveToCompletedMutation,
+  moveToQueuedMutation,
 }: OccupiedSlotCardProps) {
-  const queryClient = useQueryClient();
   const [isExpired, setIsExpired] = useState(false);
-
-  const { mutateAsync: moveToCompletedMutation } = useMutation({
-    mutationFn: (guest: GuestResponse): Promise<number> =>
-      updateGuestServiceStatus("Completed", guest, guest.slot_id),
-    onSuccess: () => {
-      queryClient.invalidateQueries()
-    }
-  })
-
-  const { mutateAsync: moveToQueuedMutation } = useMutation({
-    mutationFn: (guest: GuestResponse): Promise<number> =>
-      updateGuestServiceStatus("Queued", guest, null),
-    onSuccess: () => {
-      queryClient.invalidateQueries()
-    }
-  })
-
   const fullName = `${guest?.first_name} ${guest?.last_name}`;
-  const slotStart = guest.slotted_at
-  const slotStatusColor = isExpired ? "danger" : "warning"
-  const slotIndicatorStyle = `bg-${slotStatusColor} rounded d-flex justify-content-center align-items-center`
+  const slotStart = guest.slotted_at;
+  const slotStatusColor = isExpired ? "danger" : "warning";
+  const slotIndicatorStyle = `bg-${slotStatusColor} rounded d-flex justify-content-center align-items-center`;
 
   return (
-    <Card className={`border border-${slotStatusColor} border-2 mb-3 shadow`}>
+    <Card
+      data-testid="queue-slot-card"
+      className={`border border-${slotStatusColor} border-2 mb-3 shadow`}
+    >
       <Card.Body className="mh-100">
         <Container className="h-100">
           {guest ? (
@@ -55,13 +35,16 @@ export default function OccupiedSlotCard({
                 <Col className='d-flex flex-column flex-sm-row justify-content-between align-items-center fs-5'>
                   <Col xs={15} sm className='d-flex flex-column justify-content-between fs-5 text-center'>
                 <span>
-                  <Link to="/guests/$guestId" params={{ guestId: guest.guest_id }}>
+                  <Link
+                    to="/guests/$guestId"
+                    params={{ guestId: guest.guest_id }}
+                  >
                     {fullName}
                   </Link>
                 </span>
                 <p>
                   start:
-                  <span className='fst-italic'>{` ${readableTime(slotStart)}`}</span>
+                  <span className="fst-italic">{` ${readableTime(slotStart)}`}</span>
                 </p>
               </Col>
               <Col xs={12} sm={5} className="d-flex justify-content-end mt-2 mt-sm-0">
@@ -74,14 +57,10 @@ export default function OccupiedSlotCard({
                 >
                   Move to Completed
                 </Button>
-                <Dropdown drop='down' autoClose={true}>
-                  <Dropdown.Toggle  variant='outline-primary' />
+                <Dropdown drop="down" autoClose={true}>
+                  <Dropdown.Toggle variant="outline-primary" />
                   <Dropdown.Menu>
-                    <Dropdown.Item
-                      onClick={() =>
-                        moveToQueuedMutation(guest)
-                      }
-                    >
+                    <Dropdown.Item onClick={() => moveToQueuedMutation(guest)}>
                       Move back to Queue
                     </Dropdown.Item>
                   </Dropdown.Menu>
