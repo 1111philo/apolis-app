@@ -80,7 +80,7 @@ export function QueuedTableRow({
                     updateSlotOptions(oldChoice, e.target.value);
                     updateSlotNumIntentions(newChoice, i);
                   }}
-                  className="me-4"
+                  className="me-2"
                 >
                   <option>{slotChoice}</option>
                   {slotChoice !== defaultSelectVal && (
