@@ -57,7 +57,7 @@ export function QueuedTableRow({
     <tr data-testid="queued-table-row" className="queued-table-row">
       <td>{i + 1}</td>
       <td>{timeRequested}</td>
-      <td>
+      <td className="d-flex flex-column flex-sm-row align-items-start">
         {guestLink}
         {guest.has_notification && (
           <span data-testid="has-notification-icon">❗</span>
