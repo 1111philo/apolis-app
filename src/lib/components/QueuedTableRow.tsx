@@ -108,7 +108,8 @@ export function QueuedTableRow({
               <Button
                 variant="primary"
                 onClick={() => moveToCompletedMutation(guest)}
-              >
+                style={{ fontSize: "clamp(0.7em, 2vw, 1em)" }}
+                >
                 Move to Completed
               </Button>
             )}
