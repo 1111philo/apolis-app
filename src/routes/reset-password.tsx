@@ -2,9 +2,16 @@ import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { resetPassword } from "../lib/api";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { RollbarContext } from "@rollbar/react";
 
 export const Route = createFileRoute("/reset-password")({
-  component: ResetPasswordView,
+  component: () => {
+    return (
+      <RollbarContext context="/reset-password">
+        <ResetPasswordView />
+      </RollbarContext>
+    );
+  },
   loaderDeps: ({ search: { email, code } }) => {
     return { email, code };
   },
@@ -52,17 +59,19 @@ function ResetPasswordView() {
   );
 
   async function onSubmit(e: React.FormEvent) {
-    e.preventDefault()
+    e.preventDefault();
     const { email, code, confirm_password, password } = Object.fromEntries(
-      new FormData(e.target)
+      new FormData(e.target),
     );
     // TODO: validate: trim entries, check for presence of each, compare passwords, return early
     const success = await resetPassword(email, code, password);
     // TODO: handle invalid confirmation code
     if (!success) {
-      setErrorMsg("There was an error resetting your password. Please start over.")
-      return
+      setErrorMsg(
+        "There was an error resetting your password. Please start over.",
+      );
+      return;
     }
-    navigate({ to: "/", replace: true })
+    navigate({ to: "/", replace: true });
   }
 }

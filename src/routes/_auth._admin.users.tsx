@@ -12,6 +12,7 @@ import {
 import { useDebouncedCallback } from "use-debounce";
 import { addUser, getUsers, getUsersWithQuery } from "../lib/api/user";
 import { trimStringValues } from "../lib/utils";
+import { RollbarContext } from "@rollbar/react";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -29,7 +30,13 @@ interface SearchParams {
 }
 
 export const Route = createFileRoute("/_auth/_admin/users")({
-  component: UsersView,
+  component: () => {
+    return (
+      <RollbarContext context="/users">
+        <UsersView />
+      </RollbarContext>
+    );
+  },
   validateSearch: (search: Record<string, unknown>): SearchParams => {
     const { query, page: _page } = search;
     const page = Number(_page ?? 1);

@@ -19,6 +19,7 @@ import {
   GuestSelectSearch,
   NewGuestForm,
 } from "../lib/components";
+import { RollbarContext } from "@rollbar/react";
 
 const DEFAULT_SERVICE_NAME = "courtyard";
 
@@ -28,7 +29,13 @@ interface LoaderData {
 }
 
 export const Route = createFileRoute("/_auth/new-visit")({
-  component: NewVisitView,
+  component: () => {
+    return (
+      <RollbarContext context="/new-visit">
+        <NewVisitView />
+      </RollbarContext>
+    );
+  },
   loader: async ({ context }): Promise<LoaderData> => {
     let { serviceTypes } = context;
     serviceTypes = serviceTypes ?? [];

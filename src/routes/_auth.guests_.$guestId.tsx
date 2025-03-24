@@ -9,6 +9,7 @@ import {
 } from "../lib/components";
 import { deleteGuest, getGuestData } from "../lib/api";
 import { paddedId, sortByTimeDescending } from "../lib/utils";
+import { RollbarContext } from "@rollbar/react";
 
 interface LoaderData {
   guest: Guest;
@@ -24,7 +25,13 @@ interface LoaderData {
 }
 
 export const Route = createFileRoute("/_auth/guests_/$guestId")({
-  component: GuestProfileView,
+  component: () => {
+    return (
+      <RollbarContext context="guests/$guestId">
+        <GuestProfileView />
+      </RollbarContext>
+    );
+  },
   parseParams: (params): { guestId: number } => ({
     guestId: parseInt(params.guestId),
   }),
@@ -42,7 +49,7 @@ export const Route = createFileRoute("/_auth/guests_/$guestId")({
     const servicesWithNames: GuestService[] = guest_services
       .map((s) => {
         let { name: service_name } = serviceTypes!.find(
-          (t) => t.service_id === s.service_id
+          (t) => t.service_id === s.service_id,
         ) ?? { name: null };
         if (!service_name) return null;
         return { ...s, service_name };
@@ -57,7 +64,7 @@ export const Route = createFileRoute("/_auth/guests_/$guestId")({
 
     guest_notifications = sortByTimeDescending(
       guest_notifications,
-      "created_at"
+      "created_at",
     ) as GuestNotification[];
 
     const notifications = {
@@ -143,7 +150,7 @@ export default function GuestProfileView() {
     if (
       !confirm(
         `Are you sure you want to delete this guest?
-        ${guest.first_name} ${guest.last_name}, born ${guest.dob}`
+        ${guest.first_name} ${guest.last_name}, born ${guest.dob}`,
       )
     ) {
       return;
@@ -162,7 +169,7 @@ export default function GuestProfileView() {
   function onToggleNotificationStatus(
     success: boolean,
     notificationId: number,
-    initialStatus: GuestNotificationStatus
+    initialStatus: GuestNotificationStatus,
   ) {
     if (!success) return;
     // move the item to the other notifications array
@@ -173,31 +180,31 @@ export default function GuestProfileView() {
     let moved: GuestNotification;
     if (initialStatus === "Active") {
       active = notifications.active.filter(
-        (n) => n.notification_id !== notificationId
+        (n) => n.notification_id !== notificationId,
       );
       moved = {
         ...notifications.active.find(
-          (n) => n.notification_id === notificationId
+          (n) => n.notification_id === notificationId,
         )!,
         status: "Archived",
       };
       archived = sortByTimeDescending(
         [moved, ...notifications.archived],
-        "created_at"
+        "created_at",
       ) as GuestNotification[];
     } else {
       archived = notifications.archived.filter(
-        (n) => n.notification_id !== notificationId
+        (n) => n.notification_id !== notificationId,
       );
       moved = {
         ...notifications.archived.find(
-          (n) => n.notification_id === notificationId
+          (n) => n.notification_id === notificationId,
         )!,
         status: "Active",
       };
       active = sortByTimeDescending(
         [moved, ...notifications.active],
-        "created_at"
+        "created_at",
       ) as GuestNotification[];
     }
     setNotifications({ active, archived });

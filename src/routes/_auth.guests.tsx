@@ -13,6 +13,7 @@ import {
   TableFilter,
   TablePager,
 } from "../lib/components";
+import { RollbarContext } from "@rollbar/react";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -30,7 +31,13 @@ interface SearchParams {
 }
 
 export const Route = createFileRoute("/_auth/guests")({
-  component: GuestsView,
+  component: () => {
+    return (
+      <RollbarContext context="/guests">
+        <GuestsView />
+      </RollbarContext>
+    );
+  },
   validateSearch: (search: Record<string, unknown>): SearchParams => {
     const { query, page: _page } = search;
     const page = Number(_page ?? 1);
@@ -179,7 +186,7 @@ function GuestsTable({ rows /* setSortedRows */ }) {
       <tbody>
         {rows.map((g: Guest) => {
           const notificationCount = g.guest_notifications?.filter(
-            (n) => n.status === "Active"
+            (n) => n.status === "Active",
           ).length;
           return (
             <tr
