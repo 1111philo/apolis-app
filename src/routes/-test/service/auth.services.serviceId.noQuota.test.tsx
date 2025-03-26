@@ -12,6 +12,10 @@ import {
   updateGuestServiceStatus,
 } from "../../../lib/api";
 
+vi.mock("@rollbar/react", () => ({
+  RollbarContext: ({ children }) => children,
+}));
+
 vi.mock("../../../lib/api", () => {
   return {
     fetchServiceByID: vi.fn(async () => {
@@ -135,7 +139,7 @@ describe("the Service route", () => {
         expect(screen.getByRole("button", { name: /edit service/i }));
         expect(screen.getByRole("button", { name: /delete service/i }));
         expect(
-          screen.queryByRole("button", { name: /assign slot/i })
+          screen.queryByRole("button", { name: /assign slot/i }),
         ).toBeNull();
 
         // Slotted Area

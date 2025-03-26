@@ -5,6 +5,10 @@ import { RouterProvider } from "@tanstack/react-router";
 import { router } from "../../router";
 import { userEvent } from "@testing-library/user-event";
 
+vi.mock("@rollbar/react", () => ({
+  RollbarContext: ({ children }) => children,
+}));
+
 describe("the Index route", () => {
   beforeEach(async () => {
     let originalError = console.error;
@@ -14,7 +18,7 @@ describe("the Index route", () => {
       render(<RouterProvider router={router} />);
     });
 
-    await act(() => {
+    act(() => {
       router.navigate({
         to: "/",
       });
@@ -35,7 +39,7 @@ describe("the Index route", () => {
     await user.click(screen.getByRole("button", { name: /log in/i }));
     await waitFor(() => {
       expect(
-        screen.getByText(/email and password are required/i)
+        screen.getByText(/email and password are required/i),
       ).toBeInTheDocument();
     });
   });
@@ -47,8 +51,8 @@ describe("the Index route", () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          /please enter your email address to reset your password/i
-        )
+          /please enter your email address to reset your password/i,
+        ),
       ).toBeInTheDocument();
     });
   });

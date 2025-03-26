@@ -19,9 +19,16 @@ import {
 } from "../lib/components";
 import { Button, Modal } from "react-bootstrap";
 import type { SlotIntention } from "../lib/components/QueuedTable";
+import { RollbarContext } from "@rollbar/react";
 
 export const Route = createFileRoute("/_auth/services_/$serviceId")({
-  component: ServiceView,
+  component: () => {
+    return (
+      <RollbarContext context="/services/$serviceId">
+        <ServiceView />
+      </RollbarContext>
+    );
+  },
   parseParams: (params): { serviceId: number } => {
     return { serviceId: parseInt(params.serviceId) };
   },
@@ -121,7 +128,7 @@ function ServiceView() {
       .map((_, i) => i + 1);
     const occupiedSlots = guestsSlotted.map((g) => g.slot_id);
     setAvailableSlots(
-      possibleSlotIds.filter((id) => !occupiedSlots.includes(id))
+      possibleSlotIds.filter((id) => !occupiedSlots.includes(id)),
     );
   }, [guestsCompleted, guestsQueued, guestsSlotted]);
 
@@ -166,7 +173,7 @@ function ServiceView() {
                 Array.from({ length: service.quota }).map((slot, slotIndex) => {
                   const slotNum = slotIndex + 1;
                   const guest = guestsSlotted?.find(
-                    (g) => g.slot_id === slotNum
+                    (g) => g.slot_id === slotNum,
                   );
 
                   if (guest) {

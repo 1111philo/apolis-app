@@ -4,9 +4,16 @@ import { useAuthStore } from "../lib/utils";
 import { getUserByEmail, initForgotPassword, login } from "../lib/api";
 import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
 import { Route as NewVisitRoute } from "./_auth.new-visit";
+import { RollbarContext } from "@rollbar/react";
 
 export const Route = createFileRoute("/")({
-  component: IndexView,
+  component: () => {
+    return (
+      <RollbarContext context="index">
+        <IndexView />,
+      </RollbarContext>
+    );
+  },
   beforeLoad: async () => {
     const { authUser } = useAuthStore.getState();
     if (authUser) throw redirect({ to: NewVisitRoute.path, replace: true });
@@ -98,7 +105,7 @@ export function IndexView() {
 
   async function resetPassword(setErrorMsg) {
     const emailInput = document.getElementById(
-      "email-input"
+      "email-input",
     ) as HTMLInputElement;
     const email = emailInput.value;
     if (!email) {
@@ -109,7 +116,7 @@ export function IndexView() {
     setErrorMsg(
       success
         ? `Check your email for a password reset link from "no-reply@verificationemail.com."`
-        : "There was an issue resetting the password. Try again in a few."
+        : "There was an issue resetting the password. Try again in a few.",
     );
   }
 }

@@ -1,14 +1,21 @@
-import { useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import * as API from 'aws-amplify/api'
-import { FeedbackMessage } from '../lib/components'
+import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import * as API from "aws-amplify/api";
+import { FeedbackMessage } from "../lib/components";
 
-import { Button, Form } from 'react-bootstrap'
+import { Button, Form } from "react-bootstrap";
+import { RollbarContext } from "@rollbar/react";
 
-export const Route = createFileRoute('/_auth/_admin/add-service')({
-  component: AddServiceView,
+export const Route = createFileRoute("/_auth/_admin/add-service")({
+  component: () => {
+    return (
+      <RollbarContext context="/add-service">
+        <AddServiceView />
+      </RollbarContext>
+    );
+  },
   loader: ({ context }): AppContext => context,
-})
+});
 
 function AddServiceView() {
   return (
@@ -16,79 +23,76 @@ function AddServiceView() {
       <h1>Create Service</h1>
       <AddNewServiceForm />
     </>
-  )
+  );
 }
 
 function AddNewServiceForm() {
-  const { serviceTypes: services, refreshServices } = Route.useLoaderData()
-  const navigate = useNavigate()
+  const { serviceTypes: services, refreshServices } = Route.useLoaderData();
+  const navigate = useNavigate();
 
-  const [newServiceName, setNewServiceName] = useState('')
-  const [optionalQuota, setOptionalQuota] = useState(0)
+  const [newServiceName, setNewServiceName] = useState("");
+  const [optionalQuota, setOptionalQuota] = useState(0);
   const [feedback, setFeedback] = useState<UserMessage>({
-    text: '',
+    text: "",
     isError: false,
-  })
+  });
 
   const handleCreateNewService = async () => {
     // check if new service has a name
     if (!newServiceName) {
       setFeedback({
-        text: 'Service must be named',
+        text: "Service must be named",
         isError: true,
-      })
-      return
+      });
+      return;
     }
     // check if new service is unique
     let duplicateService = services.some(
       (service) => service.name === newServiceName,
-    )
+    );
     if (duplicateService) {
       setFeedback({
-        text: 'Service already exists.',
+        text: "Service already exists.",
         isError: true,
-      })
-      return
+      });
+      return;
     }
 
     // send new service name and quota to api
     const response = await API.post({
-      apiName: 'auth',
-      path: '/addService',
+      apiName: "auth",
+      path: "/addService",
       options: {
         body: {
           name: newServiceName,
           quota: optionalQuota ? optionalQuota : 0,
         },
       },
-    }).response
+    }).response;
 
     if (response!.statusCode === 200) {
-      setFeedback({ text: 'Success', isError: false })
-      const newService = (await response.body.json()) as any as ServiceType
-      await refreshServices()
+      setFeedback({ text: "Success", isError: false });
+      const newService = (await response.body.json()) as any as ServiceType;
+      await refreshServices();
       // route user to view for new service
       navigate({
         to: "/services/$serviceId",
         params: {
-          serviceId: newService!.service_id
-        }
-      })
+          serviceId: newService!.service_id,
+        },
+      });
     }
-  }
+  };
 
   const handleEnter = (e) => {
-    if (e.key === 'Enter') {
-      handleCreateNewService()
+    if (e.key === "Enter") {
+      handleCreateNewService();
     }
-  }
+  };
 
   return (
     <>
-      <FeedbackMessage
-        message={feedback} 
-        className="my-3"
-      />
+      <FeedbackMessage message={feedback} className="my-3" />
 
       <Form>
         <Form.Group className="mb-3" controlId="serviceName">
@@ -114,5 +118,5 @@ function AddNewServiceForm() {
         </Button>
       </Form>
     </>
-  )
+  );
 }

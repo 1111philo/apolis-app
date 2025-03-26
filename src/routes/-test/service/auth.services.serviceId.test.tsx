@@ -12,6 +12,10 @@ import {
   updateGuestServiceStatus,
 } from "../../../lib/api";
 
+vi.mock("@rollbar/react", () => ({
+  RollbarContext: ({ children }) => children,
+}));
+
 const quota = 5;
 
 vi.mock("../../../lib/api", () => {

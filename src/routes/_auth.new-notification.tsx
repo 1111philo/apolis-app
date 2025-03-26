@@ -5,9 +5,16 @@ import * as API from "aws-amplify/api";
 
 import { FeedbackMessage, GuestSelectSearch } from "../lib/components";
 import { Button, Form } from "react-bootstrap";
+import { RollbarContext } from "@rollbar/react";
 
 export const Route = createFileRoute("/_auth/new-notification")({
-  component: NewNotificationView,
+  component: () => {
+    return (
+      <RollbarContext context="/new-notification">
+        <NewNotificationView />
+      </RollbarContext>
+    );
+  },
 });
 
 function NewNotificationView() {

@@ -1,16 +1,23 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import { RollbarContext } from "@rollbar/react";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/_auth/_admin')({
-  component: RouteComponent,
+export const Route = createFileRoute("/_auth/_admin")({
+  component: () => {
+    return (
+      <RollbarContext context="_auth/_admin">
+        <RouteComponent />
+      </RollbarContext>
+    );
+  },
   beforeLoad: ({ context }): AppContext => {
-    const { authUserIsAdmin } = context
+    const { authUserIsAdmin } = context;
     if (!authUserIsAdmin) {
-      throw redirect({ to: ".." })
+      throw redirect({ to: ".." });
     }
-    return context
-  }
-})
+    return context;
+  },
+});
 
 function RouteComponent() {
-  return <Outlet /> 
+  return <Outlet />;
 }

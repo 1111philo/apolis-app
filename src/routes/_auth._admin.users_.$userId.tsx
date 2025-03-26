@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { UserProfile } from "../lib/components";
 import { getUserById } from "../lib/api";
+import { RollbarContext } from "@rollbar/react";
 
 interface URLParams {
   userId: number;
@@ -11,7 +12,13 @@ interface LoaderData {
   isOwnAccount: boolean;
 }
 export const Route = createFileRoute("/_auth/_admin/users_/$userId")({
-  component: UserProfileView,
+  component: () => {
+    return (
+      <RollbarContext context="/users/$userId">
+        <UserProfileView />
+      </RollbarContext>
+    );
+  },
   parseParams: (params): URLParams => ({
     userId: Number(params.userId),
   }),

@@ -1,9 +1,16 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useAuthStore, useServiceTypesStore } from "../lib/utils";
 import App from "../App";
+import { RollbarContext } from "@rollbar/react";
 
 export const Route = createFileRoute("/_auth")({
-  component: App,
+  component: () => {
+    return (
+      <RollbarContext context="/_auth">
+        <App />
+      </RollbarContext>
+    );
+  },
   beforeLoad: async (): Promise<AppContext> => {
     const { authUser } = useAuthStore.getState();
 
