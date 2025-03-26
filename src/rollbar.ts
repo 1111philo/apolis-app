@@ -16,6 +16,11 @@ export const rollbar = new Rollbar({
   captureUncaught: true,
   captureUnhandledRejections: true,
   nodeSourceMaps: true,
+  autoInstrument: {
+    network: true, // must be enabled for `network*` keys to apply
+    networkRequestBody: true,
+    networkResponseBody: false, // false to avoid large payloads cluttering our logs
+  },
   scrubFields: [
     // scrub Guest name
     "first_name",
@@ -26,7 +31,6 @@ export const rollbar = new Rollbar({
   // itemsPerMinute: 60,
   // maxItems: 0,
   // addErrorContext: false,
-  // autoInstrument: { network: true, dom: true },
   // captureIp: true,
   // captureEmail: true,
   // captureLambdaTimeouts: true,
