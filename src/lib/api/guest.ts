@@ -1,6 +1,7 @@
 /** Guest-related API calls */
 
 import * as API from "aws-amplify/api";
+import { reportApiError } from "./";
 import { pageOffset } from "../utils";
 
 export async function addGuest(g: Partial<Guest>): Promise<number | null> {
@@ -14,7 +15,9 @@ export async function addGuest(g: Partial<Guest>): Promise<number | null> {
       (await response.body.json()) as any as AddGuestAPIResponse;
     return guest_id;
   } catch (err) {
-    console.error("There was a problem adding the guest:", err);
+    const msg = "Couldn't add the guest:";
+    console.error(msg, err);
+    reportApiError(msg, err);
     return null;
   }
 }
@@ -29,48 +32,54 @@ export async function updateGuest(g: Partial<Guest>): Promise<boolean> {
     const { success } = (await response.body.json()) as any as SuccessResponse;
     return success;
   } catch (err) {
-    console.error("There was a problem updating the guest:", err);
+    const msg = `Couldnt update the guest with id: ${g.guest_id}:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
     return false;
   }
 }
 
-export async function deleteGuest(id): Promise<boolean> {
+export async function deleteGuest(guest_id: number): Promise<boolean> {
   try {
     const response = await API.post({
       apiName: "auth",
       path: "/deleteGuest",
-      options: { body: { guest_id: id } },
+      options: { body: { guest_id } },
     }).response;
     const { success } = (await response.body.json()) as any as SuccessResponse;
     return success;
   } catch (err) {
-    console.error("There was a problem deleting the guest:", err);
+    const msg = `Couldn't delete the guest with id: ${guest_id}:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
     return false;
   }
 }
 
 export async function getGuestData(
-  id: number
+  guest_id: number,
 ): Promise<GuestDataAPIResponse | null> {
   try {
     const response = await API.post({
       apiName: "auth",
       path: "/getGuestData",
-      options: { body: { guest_id: id } },
+      options: { body: { guest_id } },
     }).response;
     return (await response.body.json()) as any as GuestDataAPIResponse;
   } catch (err) {
-    console.error("There was a problem getting the guests's data:", err);
+    const msg = `Couldn't get data for guest with id: ${guest_id}:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
     return null;
   }
 }
 
 export async function getGuests(
   pageNum: number,
-  limit = 10
+  limit = 10,
 ): Promise<GuestsAPIResponse | null> {
+  const offset = pageOffset(pageNum);
   try {
-    const offset = pageOffset(pageNum);
     const response = await API.post({
       apiName: "auth",
       path: "/getGuests",
@@ -78,17 +87,19 @@ export async function getGuests(
     }).response;
     return (await response.body.json()) as any as GuestsAPIResponse;
   } catch (err) {
-    console.error("There was a problem getting guests:", err);
+    const msg = `Couldn't get guests with offset: ${offset}, limit: ${limit}:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
     return null;
   }
 }
 
 export async function getGuestsData(
   pageNum: number,
-  limit = 10
+  limit = 10,
 ): Promise<GuestsAPIResponse | null> {
+  const offset = pageOffset(pageNum);
   try {
-    const offset = pageOffset(pageNum);
     const response = await API.post({
       apiName: "auth",
       path: "/getGuestsData",
@@ -96,14 +107,16 @@ export async function getGuestsData(
     }).response;
     return (await response.body.json()) as any as GuestsAPIResponse;
   } catch (err) {
-    console.log("There was a problem getting guests data:", err);
+    const msg = `Couldn't get guests data with offset: ${offset}, limit: ${limit}:`;
+    console.log(msg, err);
+    reportApiError(msg, err);
     return null;
   }
 }
 
 /** Get guests with search query - first, last, dob, id. */
 export async function getGuestsWithQuery(
-  query
+  query: string,
 ): Promise<GuestsAPIResponse | null> {
   try {
     const response = await API.post({
@@ -113,7 +126,9 @@ export async function getGuestsWithQuery(
     }).response;
     return (await response.body.json()) as any as GuestsAPIResponse;
   } catch (err) {
-    console.error("There was a problem querying guests:", err);
+    const msg = `Couldn't query guests with query: ${query}:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
     return null;
   }
 }

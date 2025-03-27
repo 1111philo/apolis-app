@@ -1,5 +1,10 @@
 /** App-wide types */
 
+// Add Vite's `env` prop to import.meta
+interface ImportMeta {
+  env: Record<string, any>;
+}
+
 // AUTH
 
 type UserRole = "admin" | "manager";
@@ -75,7 +80,7 @@ interface ServiceType {
 
 // END DB
 
-// RESPONSE
+// API RESPONSE
 
 interface SuccessResponse {
   success: boolean;
@@ -116,6 +121,10 @@ interface GetUsersAPIResponse {
   offset: number;
   limit: number;
   rows: User[];
+}
+
+interface AddVisitAPIResponse {
+  visit_id: number;
 }
 
 interface GetVisitsAPIResponse extends PaginationInfo {

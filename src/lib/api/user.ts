@@ -1,6 +1,7 @@
 /** User-related API calls */
 
 import * as API from "aws-amplify/api";
+import { reportApiError } from "./";
 import { pageOffset } from "../utils";
 
 export async function addUser(
@@ -16,7 +17,9 @@ export async function addUser(
       (await response.body.json()) as any as AddUserAPIResponse;
     return user_id;
   } catch (err) {
-    console.error(err);
+    const msg = `Couldn't add the user with email: ${u.email}. Does a user with this email already exist? Error:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
     return null;
   }
 }
@@ -31,22 +34,26 @@ export async function updateUser(u: Partial<User>): Promise<boolean> {
     const { success } = (await response.body.json()) as any as SuccessResponse;
     return success;
   } catch (err) {
-    console.error(err);
+    const msg = `Couldn't update the user with id: ${u.user_id}:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
     return false;
   }
 }
 
-export async function deleteUser(id): Promise<boolean> {
+export async function deleteUser(user_id: number): Promise<boolean> {
   try {
     const response = await API.post({
       apiName: "auth",
       path: "/deleteUser",
-      options: { body: { user_id: id } },
+      options: { body: { user_id } },
     }).response;
     const { success } = (await response.body.json()) as any as SuccessResponse;
     return success;
   } catch (err) {
-    console.error(err);
+    const msg = `Couldn't delete the user with id: ${user_id}:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
     return false;
   }
 }
@@ -64,7 +71,9 @@ export async function getUserById(user_id: number): Promise<User | null> {
     if (error) throw new Error(error);
     return user;
   } catch (err) {
-    console.error(`There was a problem getting the user:`, err);
+    const msg = `Couldn't get the user with id ${user_id}:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
     return null;
   }
 }
@@ -82,7 +91,9 @@ export async function getUserByEmail(email: string): Promise<User | null> {
     if (error) throw new Error(error);
     return user;
   } catch (err) {
-    console.error(`There was a problem getting the user:`, err);
+    const msg = `Couldn't get the user with email ${email}:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
     return null;
   }
 }
@@ -90,26 +101,42 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 export async function getUsers(
   pageNum: number,
   limit = 10,
-): Promise<GetUsersAPIResponse> {
+): Promise<GetUsersAPIResponse | null> {
   const offset = pageOffset(pageNum);
-  const response = await API.post({
-    apiName: "auth",
-    path: "/getUsers",
-    options: { body: { offset, limit } },
-  }).response;
-  const usersResponse =
-    (await response.body.json()) as any as GetUsersAPIResponse;
-  return usersResponse;
+  try {
+    const response = await API.post({
+      apiName: "auth",
+      path: "/getUsers",
+      options: { body: { offset, limit } },
+    }).response;
+    const usersResponse =
+      (await response.body.json()) as any as GetUsersAPIResponse;
+    return usersResponse;
+  } catch (err) {
+    const msg = `Couldn't get users with offset: ${offset}, limit: ${limit}`;
+    console.error(msg, err);
+    reportApiError(msg, err);
+    return null;
+  }
 }
 
 /** Get users with search query - first, last, dob, id. */
-export async function getUsersWithQuery(query): Promise<GetUsersAPIResponse> {
-  const response = await API.post({
-    apiName: "auth",
-    path: "/getUsers",
-    options: { body: { query, offset: 0, limit: 50_000 } },
-  }).response;
-  const usersResponse =
-    (await response.body.json()) as any as GetUsersAPIResponse;
-  return usersResponse;
+export async function getUsersWithQuery(
+  query: string,
+): Promise<GetUsersAPIResponse | null> {
+  try {
+    const response = await API.post({
+      apiName: "auth",
+      path: "/getUsers",
+      options: { body: { query, offset: 0, limit: 50_000 } },
+    }).response;
+    const usersResponse =
+      (await response.body.json()) as any as GetUsersAPIResponse;
+    return usersResponse;
+  } catch (err) {
+    const msg = `Couldn't get users with query: ${query}:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
+    return null;
+  }
 }
