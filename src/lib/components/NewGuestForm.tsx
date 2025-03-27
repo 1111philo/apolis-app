@@ -66,7 +66,7 @@ export default function NewGuestForm({
   async function submitForm(e) {
     e.preventDefault();
     const partialGuest = Object.fromEntries(
-      new FormData(e.target)
+      new FormData(e.target),
     ) as Partial<Guest>;
     trimStringValues(partialGuest);
     if (!guestFormRequirementsSatisfied(partialGuest)) {
@@ -85,8 +85,7 @@ export default function NewGuestForm({
       return;
     }
     setFeedback(blankUserMessage());
-    const { total, ...guest } = (await getGuestData(guest_id))!;
-    !total && console.error("There was a problem getting the guest's data.");
-    onSubmit(guest ?? { ...partialGuest, guest_id });
+    const guest = (await getGuestData(guest_id))!;
+    onSubmit(guest /*?? { ...partialGuest, guest_id }*/);
   }
 }

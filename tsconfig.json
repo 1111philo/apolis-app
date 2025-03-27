@@ -1,11 +1,19 @@
 {
   "compilerOptions": {
-    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "types": [
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ],
     "typeRoots": [
       "./src/types.d.ts"
     ],
     "jsx": "react-jsx",
-    "lib": ["DOM", "ES2019"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "lib": [
+      "DOM",
+      "ES2019"
+    ],
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "strictNullChecks": true,

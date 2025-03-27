@@ -1,5 +1,6 @@
 import * as Auth from "aws-amplify/auth";
 import { Amplify } from "aws-amplify";
+import { reportApiError } from "./";
 
 /* NOTE: 25.01.27: the login view renders outside of the routing
 system altogether (see `root.render` in main.tsx) to avoid showing
@@ -9,16 +10,20 @@ There's definitely a better way to do this. */
 
 export async function login(
   email: string,
-  password: string
+  password: string,
 ): Promise<Partial<User> | null> {
   try {
     const signInOutput = await Auth.signIn({ username: email, password });
     const { name, profile: role, sub } = await Auth.fetchUserAttributes();
     return { email: email!, name: name!, role: role! as UserRole, sub: sub! };
   } catch (err) {
+    const msg = "Couldn't log in:";
+    console.error(msg, err);
+    reportApiError(msg, err);
     if (err.name === "NotAuthorizedException") {
       return null;
     }
+    // TODO: when we can recreate the auth bug, see if removing this line helps to fix the issue
     throw err; // throw if unexpected error
   }
 }
@@ -32,30 +37,33 @@ export async function isLoggedIn() {
     await Auth.getCurrentUser();
     return true;
   } catch (err) {
+    const msg = "Couldn't check if the user is logged in:";
+    console.error(msg, err);
+    reportApiError(msg, err);
     return false;
   }
 }
 
-export async function initForgotPassword(email): Promise<boolean> {
+export async function initForgotPassword(email: string): Promise<boolean> {
   try {
-    const { nextStep } = await Auth.resetPassword({
-      username: email,
-    });
+    const { nextStep } = await Auth.resetPassword({ username: email });
     switch (nextStep.resetPasswordStep) {
       case "CONFIRM_RESET_PASSWORD_WITH_CODE":
         const codeDeliveryDetails = nextStep.codeDeliveryDetails;
         console.log(
-          `Confirmation code was sent to ${codeDeliveryDetails.deliveryMedium}`
+          `Confirmation code was sent to ${codeDeliveryDetails.deliveryMedium}`,
         );
         // Collect the confirmation code from the user and pass to confirmResetPassword.
         break;
       case "DONE":
-        console.log("Successfully reset password.");
+        console.log("Successfully reset password:");
         break;
     }
-    return true
+    return true;
   } catch (err) {
-    console.error("There was an issue starting the password reset process:", err);
+    const msg = `Couldn't start the password reset process for user with email: ${email}:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
     return false;
   }
 }
@@ -67,10 +75,12 @@ export async function resetPassword(email, confirmationCode, newPassword) {
       confirmationCode,
       newPassword,
     });
-    return true
+    return true;
   } catch (err) {
-    if (err.name === "UserLambdaValidationException") return true // really a warning about email validation // TODO: what other problems could have this name / throw this error?
-    console.error("There was an issue resetting the password:", err) 
+    if (err.name === "UserLambdaValidationException") return true; // really a warning about email validation // TODO: what other problems could have this name / throw this error?
+    const msg = `Couldn't reset the password for user with email: ${email}:`;
+    console.error(msg, err);
+    reportApiError(msg, err);
   }
 }
 
@@ -107,6 +117,6 @@ export function configure() {
               : { "X-Api-Key": "1" },
         },
       },
-    }
+    },
   );
 }
