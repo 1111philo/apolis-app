@@ -23,7 +23,7 @@ export default function CompletedTable({ guestsCompleted }: CompletedTableProps)
   return (
     <>
       <h2>Completed</h2>
-      <Table responsive={true}>
+      <Table className="table-responsive" style={{ tableLayout: "fixed", width: "100%", wordWrap: "break-word" }}>
         <thead>
           <tr>
             <th>Time Completed</th>

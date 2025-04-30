@@ -5,7 +5,7 @@ interface AvailableSlotCardProps {
 }
 
 export default function AvailableSlotCard({ slotNum }: AvailableSlotCardProps) {
-  const slotLabelStyle = `bg-success rounded d-flex justify-content-center align-items-center`;
+  const slotLabelStyle = `bg-success rounded d-flex justify-content-center align-items-center text-white`
 
   return (
     <Card
@@ -14,8 +14,13 @@ export default function AvailableSlotCard({ slotNum }: AvailableSlotCardProps) {
     >
       <Card.Body className="mh-100">
         <Container className="h-100">
-          <Row>
-            <Col className={slotLabelStyle}>{slotNum}</Col>
+          <Row className="flex-nowrap">
+            <Col
+              className={slotLabelStyle}
+              xs='1'
+            >
+              {slotNum}
+            </Col>
             <Col xs={11} className="d-flex justify-content-center fs-4">
               Available
             </Col>

@@ -30,12 +30,10 @@ export default function OccupiedSlotCard({
       <Card.Body className="mh-100">
         <Container className="h-100">
           {guest ? (
-            <Row>
-              <Col className={slotIndicatorStyle}>{slotNum}</Col>
-              <Col
-                xs={6}
-                className="d-flex flex-column justify-content-between fs-5"
-              >
+            <Row className='justify-content-between'>
+              <Col className={slotIndicatorStyle} xs='1'>{slotNum}</Col>
+                <Col className='d-flex flex-column flex-sm-row justify-content-between align-items-center fs-5'>
+                  <Col xs={15} sm className='d-flex flex-column justify-content-between fs-5 text-center'>
                 <span>
                   <Link
                     to="/guests/$guestId"
@@ -49,11 +47,13 @@ export default function OccupiedSlotCard({
                   <span className="fst-italic">{` ${readableTime(slotStart)}`}</span>
                 </p>
               </Col>
-              <Col xs={5} className="d-flex flex-row justify-content-end">
+              <Col xs={12} sm={5} className="d-flex justify-content-end mt-2 mt-sm-0">
                 <Button
                   variant="primary"
-                  onClick={() => moveToCompletedMutation(guest)}
-                  className="me-2"
+                  onClick={() =>
+                    moveToCompletedMutation(guest)
+                  }
+                  className="me-2" style={{ minWidth: '66px' }}
                 >
                   Move to Completed
                 </Button>
@@ -65,6 +65,7 @@ export default function OccupiedSlotCard({
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
+              </Col>
               </Col>
             </Row>
           ) : (

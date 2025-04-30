@@ -57,7 +57,7 @@ export function QueuedTableRow({
     <tr data-testid="queued-table-row" className="queued-table-row">
       <td>{i + 1}</td>
       <td>{timeRequested}</td>
-      <td>
+      <td className="d-flex flex-column flex-sm-row align-items-start">
         {guestLink}
         {guest.has_notification && (
           <span data-testid="has-notification-icon">❗</span>
@@ -80,7 +80,7 @@ export function QueuedTableRow({
                     updateSlotOptions(oldChoice, e.target.value);
                     updateSlotNumIntentions(newChoice, i);
                   }}
-                  className="me-4"
+                  className="me-2"
                 >
                   <option>{slotChoice}</option>
                   {slotChoice !== defaultSelectVal && (
@@ -108,7 +108,8 @@ export function QueuedTableRow({
               <Button
                 variant="primary"
                 onClick={() => moveToCompletedMutation(guest)}
-              >
+                style={{ fontSize: "clamp(0.7em, 2vw, 1em)" }}
+                >
                 Move to Completed
               </Button>
             )}
